@@ -1,0 +1,228 @@
+[
+  {
+    "name": "Sign up and start with a clean private budget",
+    "sanity": true,
+    "viewport": "mobile",
+    "covers": [
+      "email/password sign up and login",
+      "compact mobile login and sign-up layout",
+      "session persistence",
+      "default zero-balance account",
+      "empty financial records on new account",
+      "default categories",
+      "per-user row-level security",
+      "six-digit email verification on email/password signup and login",
+      "eight-character minimum for new signup passwords",
+      "eight-character minimum for password reset and recovery",
+      "server-side OTP request limits by email and source IP",
+      "verified active Brevo sender selected without a hardcoded address",
+      "six-digit verification validation and digit paste handling",
+      "production-domain password reset redirect",
+      "clear email-provider setup errors",
+      "failed signup email delivery does not leave an unusable account",
+      "single-use verification code with ten-minute expiry",
+      "resend cooldown and five-attempt lockout",
+      "trusted device bypass for thirty days",
+      "Google sign-in option is not shown while unavailable",
+      "Apple and Facebook sign-in options are not shown",
+      "Settings does not show a Linked accounts section",
+      "forgot password sends six-digit code by email",
+      "password reset code expiry and one-time use",
+      "verified reset code unlocks new password form",
+      "password reset rejects mismatched confirmation",
+      "Home monthly spending card opens expense transactions",
+      "Home month chip opens monthly reports",
+      "Home earnings tile opens income transactions",
+      "Home bills and spend tile opens expense transactions",
+      "Home budget progress category rows open their budget detail sheet"
+    ],
+    "description": "Creates a new account and verifies its private finance workspace loads and persists.",
+    "steps": [
+      "Open the app and continue past the introduction",
+      "Verify the Log In form fits within a standard phone viewport without horizontal overflow and no unavailable social sign-in option is shown",
+      "Switch to Sign Up and verify the four fields, terms checkbox and create button remain visible in the compact layout without unavailable social sign-in options",
+      "Attempt to sign up with a seven-character password and verify the form rejects it before requesting a code",
+      "Create an account with a valid email and a password of at least eight characters",
+      "Verify the six-digit code delivered to that email using the six input boxes or paste",
+      "Select Trust this device for 30 days and submit the code",
+      "Complete currency and monthly income setup for the first account",
+      "Sign out, sign in with email and password, and verify a code is requested on an untrusted device",
+      "Sign in and open Home, Transactions and Budgets",
+      "Refresh the page",
+      "On Home, tap the monthly spending card and verify Expenses transactions opens",
+      "Return Home and tap the month chip; verify Reports opens with Month selected",
+      "Return Home and tap Earnings; verify Income transactions opens",
+      "Return Home and tap Bills & spend; verify Expenses transactions opens",
+      "Return Home and tap a Budget progress category row; verify its budget detail sheet opens"
+    ],
+    "expected": "The new account sees its own zeroed starting workspace and every highlighted Home dashboard card and category row opens its relevant detail or list view."
+  },
+  {
+    "name": "Create, read, update and delete transactions",
+    "viewport": "mobile",
+    "covers": [
+      "transaction create",
+      "transaction list and detail read",
+      "transaction update",
+      "transaction delete with confirmation",
+      "account balance recalculation",
+      "dashboard and report recalculation",
+      "data persistence"
+    ],
+    "description": "Verifies transaction CRUD and confirms dependent totals refresh after every saved change.",
+    "steps": [
+      "Sign in and add an expense with amount, category, account, note and date",
+      "Verify it appears in Transactions and open its details",
+      "Edit the amount and note and save",
+      "Verify Home and Reports reflect the edited transaction",
+      "Delete the transaction and confirm",
+      "Refresh and verify the transaction remains deleted and totals remain updated"
+    ],
+    "expected": "The transaction is created, listed, edited and deleted; refreshed views and dependent totals match the saved records."
+  },
+  {
+    "name": "Manage budgets, accounts and categories with complete CRUD",
+    "viewport": "mobile",
+    "covers": [
+      "budget create",
+      "budget update",
+      "budget delete",
+      "account create",
+      "account read through tappable detail sheet",
+      "account update including balance from detail sheet",
+      "category read through tappable detail sheet",
+      "budget read through tappable detail sheet",
+      "budget edit and delete from detail sheet",
+      "account delete",
+      "category create",
+      "category read",
+      "category update",
+      "category delete",
+      "dependency-safe delete errors",
+      "savings goal create and read",
+      "savings goal update saved amount and target date",
+      "savings goal delete with confirmation",
+      "savings goal persistence after refresh",
+      "savings goal data isolation by user"
+    ],
+    "description": "Verifies each management screen exposes reliable controls for creating, reading, editing and deleting saved records.",
+    "steps": [
+      "Open Budgets and create a monthly category limit",
+      "Edit that limit, save it and verify the updated amount",
+      "Delete the test budget and confirm it disappears",
+      "Open Settings and add a temporary account and category",
+      "Tap the account row to open its details sheet, choose Edit, change its name and balance, then save",
+      "Tap the category row to open its details sheet, choose Edit, change its name and save",
+      "Tap a budget row to open its details sheet, edit the limit, then reopen the sheet and delete the test budget",
+      "Delete both unused test records after confirmation",
+      "Open the Savings goals section and create a goal with a name, target amount, saved amount and target date",
+      "Verify the goal card displays its saved amount and progress percentage",
+      "Open the goal, update its saved amount and target date, then save",
+      "Refresh and verify the updated goal and progress remain visible",
+      "Open the goal again, choose Delete goal and confirm",
+      "Verify the deleted goal no longer appears"
+    ],
+    "expected": "Budgets, accounts, categories and savings goals support their expected CRUD workflows; savings progress and edits persist after refresh, and deletions require confirmation."
+  },
+  {
+    "name": "Reject invalid transactions and isolate private data",
+    "viewport": "mobile",
+    "covers": [
+      "positive amount validation",
+      "required account validation",
+      "authentication protected data",
+      "RLS user isolation",
+      "visible form validation errors"
+    ],
+    "description": "Ensures invalid writes are blocked and authenticated users cannot see another user's finance records.",
+    "steps": [
+      "Sign in and open Add Transaction",
+      "Submit with an empty or zero amount and verify validation prevents saving",
+      "Sign out and verify the sign-in screen appears",
+      "Sign in as a different test account and open Transactions"
+    ],
+    "expected": "Invalid transaction data is rejected, signed-out users cannot access finance screens, and a second account sees only its own records."
+  },
+  {
+    "name": "Create and manage bill reminders",
+    "viewport": "mobile",
+    "covers": [
+      "bill reminder create",
+      "bill reminder due date and lead-time selection",
+      "upcoming and overdue bill status",
+      "mark bill paid and unpaid",
+      "bill reminder update and delete with confirmation",
+      "bill reminder persistence after refresh",
+      "bill reminder per-user isolation"
+    ],
+    "description": "Verifies bills can be scheduled, tracked, marked paid, edited and deleted without exposing another user's reminders.",
+    "steps": [
+      "Open Home and add a bill with a name, amount, due date and reminder lead time",
+      "Verify the bill appears in Bill reminders with the correct amount and due status",
+      "Open the bill, change its due date and reminder lead time, then save",
+      "Verify the updated bill and reminder state appear after refresh",
+      "Mark the bill as paid and verify its status changes to Paid",
+      "Mark it unpaid again, reopen it, delete it and confirm",
+      "Verify the deleted bill no longer appears"
+    ],
+    "expected": "Bill reminders persist across reloads, reflect upcoming/overdue/paid states, and support safe editing and confirmed deletion."
+  },
+  {
+    "name": "Save preferences and export financial records",
+    "viewport": "desktop",
+    "covers": [
+      "currency preference update",
+      "monthly income update",
+      "profile name update and persistence",
+      "email change confirmation flow",
+      "profile photo upload with file type and size validation",
+      "uploaded profile photos are center-cropped to a square before storage",
+      "header and profile-card avatars use fixed circular clipping with centered cover images",
+      "profile avatar shared across Settings and all screen headers immediately after upload",
+      "profile photo helper text wraps without clipping and remains clear of fixed navigation",
+      "password update with confirmation validation",
+      "Linked accounts section is absent from Settings",
+      "email/password sign-in remains enabled",
+      "Unavailable Google sign-in option is not shown",
+      "CSV export respects current transaction filters and escapes values safely",
+      "PDF report includes branded header, date, currency, income, expenses, net cash flow and visible transaction details",
+      "responsive navigation"
+    ],
+    "description": "Verifies profile preference updates and report exports remain available after the CRUD improvements.",
+    "steps": [
+      "Open Settings and change the full name and email address, then save profile details",
+      "Verify the name is saved and a confirmation email is requested for the new email address",
+      "Upload a non-square JPG, PNG or WebP profile photo no larger than 5 MB and verify it is center-cropped to a square and shown without stretching in the perfectly circular Settings profile card and top-right avatars on Home and other screens immediately without refreshing",
+      "Open Settings on a phone viewport and verify the profile photo helper text sits directly below the profile card, wraps within the screen padding, and is not covered by the Update password button, floating add button or bottom navigation",
+      "Open Change password, enter a new password and matching confirmation, then save",
+      "Verify mismatched passwords are rejected without changing the account password",
+      "Change currency and monthly income, save preferences and refresh",
+      "Verify the saved profile details and preferences remain selected",
+      "Open Transactions, apply a category and date filter, then export CSV and verify only matching rows and correctly quoted values are included",
+      "Use Export PDF and verify the print preview contains the BudgetBuddy report heading, prepared date, currency, income, expense and net totals, and the visible transaction table",
+      "Close print preview and verify the app returns to its normal screen"
+    ],
+    "expected":      "Profile name and photo persist, email changes require inbox confirmation, password changes validate matching entries, preferences persist, CSV contains only visible filtered transactions with correctly escaped values, and the print-ready PDF report shows accurate totals and transaction details."
+  },
+  {
+    "name": "Filter transactions by category and date range",
+    "viewport": "mobile",
+    "covers": [
+      "transaction search",
+      "transaction type filter",
+      "transaction category filter",
+      "transaction date range filter",
+      "clear transaction filters"
+    ],
+    "description": "Verifies transaction search and combined category and date filters narrow the list correctly and can be reset.",
+    "steps": [
+      "Sign in to a test account and create an expense with a distinctive note, category and date",
+      "Open Transactions and search for the distinctive note; verify the matching transaction appears",
+      "Select the transaction's category and set From and To dates that include its date",
+      "Verify the matching transaction remains visible and unrelated transactions are excluded",
+      "Change the date range so it excludes the transaction and verify the empty state appears",
+      "Tap Clear filters and verify the full transaction list returns"
+    ],
+    "expected": "Search, type, category and date filters work together, exclude non-matching records, and Clear filters restores the unfiltered transaction list."
+  }
+]
