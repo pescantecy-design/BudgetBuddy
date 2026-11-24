@@ -1,0 +1,92 @@
+name: Build APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm install
+      - run: npm install @capacitor/core @capacitor/cli @capacitor/android
+      - name: Create @appdeploy/client shim
+        run: |
+          mkdir -p node_modules/@appdeploy/client
+          cat > node_modules/@appdeploy/client/package.json <<'EOF'
+          {"name":"@appdeploy/client","version":"0.0.0","type":"module","main":"index.js"}
+          EOF
+          cat > node_modules/@appdeploy/client/index.js <<'EOF'
+          export const api = {
+            async post(path, body) {
+              const res = await fetch(path, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body || {}),
+              });
+              const raw = await res.text();
+              let data = null;
+              try { data = JSON.parse(raw); } catch (e) {}
+              if (!res.ok) {
+                const err = new Error((data && data.error) || 'Request failed (' + res.status + ')');
+                err.response = { status: res.status, data };
+                throw err;
+              }
+              return { data };
+            },
+          };
+          EOF
+      - name: Load the deployed app inside the APK
+        run: |
+          cat > capacitor.config.ts <<'EOF'
+          import type { CapacitorConfig } from '@capacitor/cli';
+          const config: CapacitorConfig = {
+            appId: 'com.budgetbuddy.app',
+            appName: 'BudgetBuddy',
+            webDir: 'dist',
+            server: {
+              url: 'https://budget-ael3z9.v2.appdeploy.ai',
+              androidScheme: 'https',
+              allowNavigation: ['*.appdeploy.ai', '*.supabase.co'],
+            },
+          };
+          export default config;
+          EOF
+      - run: npm run build
+      - run: npx cap add android
+      - name: Fix duplicate Kotlin classes
+        run: |
+          cat >> android/app/build.gradle <<'EOF'
+
+          configurations.all {
+              resolutionStrategy {
+                  force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+                  force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+              }
+          }
+          EOF
+      - name: Set BudgetBuddy app icons
+        run: |
+          RES=android/app/src/main/res
+          rm -rf $RES/mipmap-anydpi-v26
+          for pair in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
+            d=${pair%%:*}; s=${pair##*:}
+            cp budget-icon-$s.png $RES/mipmap-$d/ic_launcher.png
+            cp budget-icon-$s.png $RES/mipmap-$d/ic_launcher_round.png
+            cp budget-icon-$s.png $RES/mipmap-$d/ic_launcher_foreground.png
+          done
+      - run: npx cap sync android
+      - run: chmod +x android/gradlew
+      - run: cd android && ./gradlew assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BudgetBuddy-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
